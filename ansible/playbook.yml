@@ -1,0 +1,84 @@
+---
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for the system/s to become reachable
+      ansible.builtin.wait_for_connection:
+
+- hosts: all
+  become: true
+  environment:
+    PIP_BREAK_SYSTEM_PACKAGES: "true"
+    VAULT_TOKEN: "{{ ansible_hashi_vault_token }}"
+  vars:
+    ssh_client_engine: "ssh-dc-client"
+    ssh_host_engine: "ssh-dc-host"
+    vault_url: "https://vault.example.example.edu"
+  pre_tasks:
+    - name: "Install deps"
+      ansible.builtin.package:
+        name:
+          - "python3-pip"
+      tags:
+        - always
+    - name: "Install hvac with pip"
+      ansible.builtin.pip:
+        name: "hvac"
+      tags:
+        - always
+  tasks:
+    - import_role:
+        name: falcon-sensor
+      tags:
+        - falcon-sensor
+    - import_role:
+        name: site24x7
+      tags:
+        - site24x7
+    - import_role:
+        name: "arillso.sudoers"
+      vars:
+        sudoers_sudoers_d_files:
+          deploy:
+            defaults:
+              - env_reset
+              - exempt_group=sudo
+              - mail_badpass
+              - secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            privileges:
+              - name: "deploy"
+                entry: "ALL=(root) NOPASSWD:ALL"
+      tags:
+        - sudoers
+    - import_role:
+        name: "user"
+      tags:
+        - user
+    - import_role:
+        name: "client-key"
+      tags:
+        - client-key
+    - import_role:
+        name: "host-key"
+      tags:
+        - host-key
+    - import_role:
+        name: "expand"
+      tags:
+        - expand
+    - import_role:
+        name: "geerlingguy.swap"
+      vars:
+        swap_file_path: "/dev/mapper/vg01-swaplv"
+        swap_file_state: absent
+      tags:
+        - swap
+  post_tasks:
+    - name: Remove pip deps
+      ansible.builtin.pip:
+        name:
+          - "hvac"
+        state: absent
+      tags:
+        - always

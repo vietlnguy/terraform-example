@@ -1,0 +1,23 @@
+# Client SSH params
+ssh_client_key_allowed_domains: "*"
+ssh_client_key_allowed_users: "53ouRYvOo39j1y1pbtJeJ6PHbGd4Sa"
+ssh_client_key_policy: "example-production"
+ssh_client_key_role: "example-production"
+ssh_client_key_policy_additions: |+
+  # Allow access to application secrets for env
+  path "kv-applications/data/example/production" {
+    capabilities = ["read"]
+  }
+  # Allow access to metadata for version control
+  path "kv-applications/metadata/example/production" {
+    capabilities = ["read"]
+  }
+
+# Host SSH params
+ssh_host_key_allowed_domains: "*"
+ssh_host_key_allowed_users: "53ouRYvOo39j1y1pbtJeJ6PHbGd4Sa"
+ssh_host_key_role: "example-production"
+
+# User params
+user_principals:
+  - "53ouRYvOo39j1y1pbtJeJ6PHbGd4Sa"

@@ -1,0 +1,23 @@
+# Client SSH params
+ssh_client_key_allowed_domains: "*"
+ssh_client_key_allowed_users: "Y00aiImmP50Rd7iOvKY81X07HozCME"
+ssh_client_key_policy: "example-staging"
+ssh_client_key_role: "example-staging"
+ssh_client_key_policy_additions: |+
+  # Allow access to application secrets for env
+  path "kv-applications/data/example/staging" {
+    capabilities = ["read"]
+  }
+  # Allow access to metadata for version control
+  path "kv-applications/metadata/example/staging" {
+    capabilities = ["read"]
+  }
+
+# Host SSH params
+ssh_host_key_allowed_domains: "*"
+ssh_host_key_allowed_users: "Y00aiImmP50Rd7iOvKY81X07HozCME"
+ssh_host_key_role: "example-staging"
+
+# User params
+user_principals:
+  - "Y00aiImmP50Rd7iOvKY81X07HozCME"
